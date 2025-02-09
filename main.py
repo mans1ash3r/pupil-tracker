@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import requests
 import shutil
 import os
+import json
 
 # Initialize FastAPI app
 app = FastAPI()
@@ -10,7 +11,7 @@ app = FastAPI()
 # Enable CORS for frontend communication
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allow all origins (change if needed for security)
+    allow_origins=["*"],  # Allow all origins (change this for security if needed)
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -22,9 +23,9 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 # Roboflow API Details
 ROBOFLOW_API_URL = "https://detect.roboflow.com/eyes-pupil-detection/1"
-API_KEY = "your_api_key"  # Replace with your actual API key
+API_KEY = "N5eLTInggyBnrZ0qLSFF"  
 
-# Temporary storage for latest detection result
+# Temporary storage for latest detection results
 temp_storage = {}
 
 @app.get("/")
@@ -35,8 +36,8 @@ def read_root():
 @app.post("/detect/")
 async def detect_pupil(file: UploadFile = File(...)):
     """
-    Receive an image from the frontend, send it to Roboflow's API for processing, 
-    and return the detected pupil data.
+    Receives an image from the frontend, sends it to Roboflow's API for processing, 
+    and returns detected pupil data.
     """
     global temp_storage
 
@@ -53,17 +54,28 @@ async def detect_pupil(file: UploadFile = File(...)):
             files=files,
         )
 
-    # Store and return the detection result
+    # Check if API request was successful
     if response.status_code == 200:
-        temp_storage["latest_result"] = response.json()
+        response_json = response.json()
+
+        # Debugging log: Print the full API response
+        print("Roboflow Response:", json.dumps(response_json, indent=4))
+
+        # Extract predictions (pupil detections)
+        predictions = response_json.get("predictions", [])
+
+        # Store and return the detection result
+        temp_storage["latest_result"] = {"predictions": predictions}
         return temp_storage["latest_result"]
+    
     else:
+        print("Error from Roboflow:", response.text)  # Log the error
         return {"error": "Failed to process image", "details": response.text}
 
 @app.get("/latest/")
 def get_latest_result():
     """
     Retrieve the latest pupil detection result.
-    If no result exists, return a message indicating no recent data.
+    If no result exists, return an empty list instead of an error.
     """
-    return temp_storage.get("latest_result", {"message": "No recent result found"})
+    return temp_storage.get("latest_result", {"predictions": []})
