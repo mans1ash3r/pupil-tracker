@@ -1,17 +1,74 @@
-import { useState } from "react";
-import PupilTracker from "../components/PupilTracker"; // ✅ Use the webcam component
+import React from "react";
+import PupilTracker from "../components/PupilTracker";
 
-export default function Home() {
-    const [detections, setDetections] = useState<any>(null);
+const styles: { [key: string]: React.CSSProperties } = {
+  container: {
+    fontFamily: "'Helvetica Neue', sans-serif",
+    backgroundColor: "#1e1e2f",
+    color: "#fff",
+    minHeight: "100vh",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    padding: "20px",
+    gap: "20px",
+  },
+  header: {
+    backgroundColor: "#4caf50",
+    width: "100%",
+    padding: "20px 0",
+    textAlign: "center",
+    borderRadius: "8px",
+    boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
+  },
+  title: {
+    color: "#fff",
+    fontSize: "2.5rem",
+    margin: 0,
+  },
+  main: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    width: "100%",
+    maxWidth: "1200px",
+    gap: "20px",
+  },
+  footer: {
+    backgroundColor: "#333",
+    color: "#fff",
+    padding: "10px",
+    textAlign: "center",
+    width: "100%",
+    borderRadius: "8px",
+    boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
+  },
+};
 
-    return (
-        <div className="min-h-screen flex flex-col items-center justify-center bg-gray-900 text-white p-6">
-            <h1 className="text-3xl font-bold mb-6">👀 Pupil Detection</h1>
+const Home: React.FC = () => (
+  <div style={styles.container}>
+    <header style={styles.header}>
+      <h1 style={styles.title}>Pupil Detector 👀</h1>
+    </header>
 
-            {/* ✅ Replace file input with webcam */}
-            <PupilTracker />
+    {/* Introduction Section */}
+    <section style={styles.introSection}>
+      <p>
+        Pupil size can reveal a lot about a person's health and environment. Normal pupils range between{" "}
+        <strong>2 to 4 mm in bright light</strong> and <strong>4 to 8 mm in the dark</strong>. 
+        In some cases, unusual pupil sizes may indicate medical conditions like <em>anisocoria</em>, 
+        neurological issues, or response to light exposure.
+      </p>
+    </section>
 
-            {detections && <pre className="mt-4 text-sm">{JSON.stringify(detections, null, 2)}</pre>}
-        </div>
-    );
-}
+    <main style={styles.main}>
+      <PupilTracker />
+    </main>
+
+    <footer style={styles.footer}>
+      <p>© 2025 Pupil Detection System. All Rights Reserved.</p>
+    </footer>
+  </div>
+);
+
+export default Home;
