@@ -26,10 +26,19 @@ const styles: { [key: string]: React.CSSProperties } = {
     fontSize: "2.5rem",
     margin: 0,
   },
+  introSection: {
+    maxWidth: "900px",
+    textAlign: "center",
+    fontSize: "1.2rem",
+    backgroundColor: "#2e2e3f",
+    padding: "15px",
+    borderRadius: "8px",
+    boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
+  },
   main: {
     display: "flex",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
+    flexDirection: "column",
+    alignItems: "center",
     width: "100%",
     maxWidth: "1200px",
     gap: "20px",
@@ -42,6 +51,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     width: "100%",
     borderRadius: "8px",
     boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
+    marginTop: "20px",
   },
 };
 
@@ -50,9 +60,21 @@ const Home: React.FC = () => (
     <header style={styles.header}>
       <h1 style={styles.title}>👀 Pupil Detector</h1>
     </header>
+
+    {/* Introduction Section */}
+    <section style={styles.introSection}>
+      <p>
+        Pupil size can reveal a lot about a person's health and environment. Normal pupils range between{" "}
+        <strong>2 to 4 mm in bright light</strong> and <strong>4 to 8 mm in the dark</strong>. 
+        In some cases, unusual pupil sizes may indicate medical conditions like <em>anisocoria</em>, 
+        neurological issues, or response to light exposure.
+      </p>
+    </section>
+
     <main style={styles.main}>
       <PupilTracker />
     </main>
+
     <footer style={styles.footer}>
       <p>© 2025 Pupil Detection System. All Rights Reserved.</p>
     </footer>
