@@ -47,12 +47,51 @@ const PupilTracker: React.FC = () => {
 
   const handleDetection = async () => {
     setLoading(true);
-    setTimeout(() => {
-      const detectedPupil = { x: 100, y: 150, width: 4, height: 4, confidence: 0.85 }; // Simulated pupil size in mm
-      setPupilData([detectedPupil]);
-      setFact(getFactBasedOnPupilSize(detectedPupil.width));
+
+    if (!videoRef.current) {
+      console.error("Webcam not available.");
       setLoading(false);
-    }, 2000);
+      return;
+    }
+
+    // Capture image from video
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    if (!ctx) {
+      setLoading(false);
+      return;
+    }
+    canvas.width = videoRef.current.videoWidth;
+    canvas.height = videoRef.current.videoHeight;
+    ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
+
+    // Convert image to blob
+    canvas.toBlob(async (blob) => {
+      if (!blob) return;
+
+      const formData = new FormData();
+      formData.append("file", blob, "frame.jpg");
+
+      try {
+        // Send image to backend for processing
+        const response = await fetch("http://127.0.0.1:8000/detect/", {
+          method: "POST",
+          body: formData,
+        });
+
+        const data = await response.json();
+        console.log("🔍 Pupil Data from Backend:", data.predictions); // Debug log
+
+        if (data.predictions) {
+          setPupilData(data.predictions);
+          setFact(getFactBasedOnPupilSize(data.predictions[0]?.width || 0));
+        }
+      } catch (error) {
+        console.error("Error detecting pupil:", error);
+      }
+
+      setLoading(false);
+    }, "image/jpeg");
   };
 
   return (
@@ -72,14 +111,14 @@ const PupilTracker: React.FC = () => {
           {pupilData.length > 0 ? (
             pupilData.map((pupil, index) => (
               <div key={index} style={pageStyles.resultItem}>
-                <strong>Pupil {index + 1}:</strong> x={pupil.x}, y={pupil.y}, size={pupil.width}x{pupil.height}px, confidence={pupil.confidence?.toFixed(2)}
+                <strong>Pupil {index + 1}:</strong> x={pupil.x}, y={pupil.y}, size={pupil.width}px, confidence={pupil.confidence?.toFixed(2)}
               </div>
             ))
           ) : (
             <p style={pageStyles.emptyState}>No pupils detected yet.</p>
           )}
         </div>
-        
+
         {/* Fact Display */}
         <div style={pageStyles.factSection}>
           <h3 style={pageStyles.factTitle}>Pupil Fact</h3>
