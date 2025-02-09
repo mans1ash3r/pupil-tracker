@@ -1,4 +1,4 @@
-👀 Pupil Tracker
+EyeQ 👀 
 
 Pupil Tracker is a **real-time pupil detection system** that captures webcam frames, processes them using a **FastAPI backend**, and detects pupils using **Roboflow’s AI model**. The detected pupils are **highlighted with bounding boxes** on the live webcam feed.
 
