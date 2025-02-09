@@ -6,10 +6,9 @@ import os
 
 app = FastAPI()
 
-# ✅ Enable CORS (Frontend-Backend Communication)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -18,9 +17,11 @@ app.add_middleware(
 UPLOAD_FOLDER = "uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-# ✅ Roboflow API Details
 ROBOFLOW_API_URL = "https://detect.roboflow.com/eyes-pupil-detection/1"
-API_KEY = "N5eLTInggyBnrZ0qLSFF"  # Replace with your actual API key
+API_KEY = "your_api_key"
+
+# Temporary storage for the latest detection result
+temp_storage = {}
 
 @app.get("/")
 def read_root():
@@ -28,30 +29,29 @@ def read_root():
 
 @app.post("/detect/")
 async def detect_pupil(file: UploadFile = File(...)):
-    """Receives an image, saves it, and sends it to the Roboflow pupil detection API."""
-    
-    # ✅ Debugging: Print received file details
-    print(f"Received file: {file.filename} | Type: {file.content_type}")
+    global temp_storage
 
-    # ✅ Ensure it's a valid image type
-    if file.content_type not in ["image/jpeg", "image/png"]:
-        return {"error": "Invalid file format", "expected": "image/jpeg or image/png", "received": file.content_type}
-
-    # ✅ Save uploaded image
+    # Save uploaded image
     file_path = f"{UPLOAD_FOLDER}/{file.filename}"
     with open(file_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
 
-    # ✅ Send image to Roboflow API
+    # Send image to Roboflow API
     with open(file_path, "rb") as image_file:
         files = {"file": ("image.jpg", image_file, "image/jpeg")}
         response = requests.post(
             f"{ROBOFLOW_API_URL}?api_key={API_KEY}",
-            files=files,  
+            files=files,
         )
 
-    # ✅ Return API Response
+    # Store the response temporarily
     if response.status_code == 200:
-        return response.json()
+        temp_storage["latest_result"] = response.json()
+        return temp_storage["latest_result"]
     else:
         return {"error": "Failed to process image", "details": response.text}
+
+@app.get("/latest/")
+def get_latest_result():
+    """Retrieve the latest detection result."""
+    return temp_storage.get("latest_result", {"message": "No recent result found"})
