@@ -15,16 +15,27 @@ Pupil Tracker is a **real-time pupil detection system** that captures webcam fra
 
 ## 📂 Project Structure
 
-### **Frontend (Next.js + React)**
-📁 **frontend/** – The user interface and webcam handling
-- **📂 components/**
-  - `PupilTracker.tsx` → Captures webcam frames and sends them to the backend. Displays detected pupils.
-- **📂 pages/**
-  - `index.tsx` → Main webpage, imports `<PupilTracker />`
-- **📂 styles/** → CSS for styling the UI
-- `package.json` → Lists dependencies (React, Next.js, Tailwind, Axios, React-Webcam)
-- `tsconfig.json` → TypeScript configuration
+### 📁 **Frontend (Next.js + React)**
+The frontend is built with **Next.js** and **React**, handling the user interface and webcam input.
 
-### **Backend (FastAPI + Python)**
-📁 **backend/** – The API server for pupil detection
-- `main.py` →  
+- **📂 `frontend/`** – Contains the user interface and webcam handling logic
+  - **📂 `components/`**
+    - `PupilTracker.tsx` → Captures webcam frames, sends them to the backend, and displays detected pupils.
+  - **📂 `pages/`**
+    - `index.tsx` → Main webpage, imports `<PupilTracker />`
+  - **📂 `styles/`** → Contains CSS for UI styling
+  - `package.json` → Lists dependencies (React, Next.js, Tailwind, Axios, React-Webcam)
+  - `tsconfig.json` → TypeScript configuration
+
+---
+
+### 📁 **Backend (FastAPI + Python)**
+The backend is powered by **FastAPI** and processes pupil detection requests.
+
+- **📂 `backend/`** – The API server for pupil detection
+  - `main.py` → Runs the FastAPI server at `http://127.0.0.1:8000`
+    - Accepts images at **`/detect/`** endpoint
+    - Sends images to **Roboflow API** for processing
+    - Returns detected pupil coordinates: `(x, y, width, height, confidence)`
+  - `requirements.txt` → Lists Python dependencies (FastAPI, Uvicorn, Requests)
+  - **📂 `uploads/`** → Temporary storage for images before they are sent to Roboflow
